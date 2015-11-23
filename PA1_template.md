@@ -1,7 +1,7 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
 author: "Kean Loon Lee"
-date: "6 November, 2015"
+date: "18 November, 2015"
 output: html_document
 ---
 
@@ -121,11 +121,16 @@ sum(missing)
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
 ```r
+# as.integer is important here, because x could be treated as strings
 replacer <- function(x){
-  ave.steps[ave.steps$interval==x,]$mean.num.steps
+  ave.steps[ave.steps$interval==as.integer(x),]$mean.num.steps
 }
 newdf <- df # new data set with missing data filled in
-newdf$steps <- ifelse(is.na(newdf$steps),replacer(newdf$interval),newdf$steps)
+# there is a mixing of data type 
+# (originally steps are integer, replacer will produce mean as strings)
+# hence it is important to use as.numeric to recast data into float
+newdf$steps <- as.numeric(apply(newdf, 1, 
+                                function(x) ifelse(is.na(x[1]),replacer(x[3]),x[1])))
 ```
 
 4. A histogram of the total number of steps taken each day, plus the mean and median of the total number of steps taken per day.
@@ -143,7 +148,7 @@ mean(new.tot.steps$tot.num.steps) # mean
 ```
 
 ```
-## [1] 9530.724
+## [1] 10766.19
 ```
 
 ```r
@@ -151,7 +156,7 @@ median(new.tot.steps$tot.num.steps) # median
 ```
 
 ```
-## [1] 10439
+## [1] 10766.19
 ```
 Both the mean and median of the total daily number of steps have increased after imputing the missing data.
 
